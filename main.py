@@ -1,8 +1,9 @@
+#main.py
 import time
 import config, buttons, screens
 from luma.core.interface.serial import i2c
 from luma.oled.device import ssd1306
-
+import network_utils
 serial = i2c(port=config.I2C_PORT, address=config.OLED_ADDRESS)
 device = ssd1306(serial)
 
@@ -12,7 +13,17 @@ current_screen = 0  # 0=Status, 1=Menu, 2=Resource
 menu_index = 0
 scroll_offset = 0
 max_visible_menu_items = 4
-hotspot_active = False  # Track current mode
+
+#hotspot_active = False  # Track current mode
+# Detect current mode at startup
+if network_utils.is_hotspot_running():
+    hotspot_active = True
+elif network_utils.is_wifi_connected():
+    hotspot_active = False
+else:
+    hotspot_active = False  # Default to Wi-Fi if no mode is active
+
+print(f"Startup mode: {'Hotspot' if hotspot_active else 'Wi-Fi'}")
 
 def update_scroll():
     global scroll_offset
@@ -56,29 +67,21 @@ try:
                     import os
                     os.system("sudo shutdown now")
                 elif selected == "WiFi Mode":
-                    screens.draw_loading_screen(device, "WiFi On")
-                    import network_utils
+                    screens.draw_loading_screen(device, "Switching to Wi-Fi")
+
                     network_utils.set_wifi_mode(True)
-                    network_utils.set_hotspot_mode(False)
                     hotspot_active = False
                     time.sleep(1)
+
                 elif selected == "Hotspot Mode":
-                    import network_utils
-                    # Toggle hotspot mode
-                    if hotspot_active:
-                        # If hotspot already active, just re-show QR code
-                        screens.draw_qr_screen(device)
-                        time.sleep(5)
-                    else:
-                        # Enable hotspot and show QR code
-                        screens.draw_loading_screen(device, "Hotspot On")
-                        network_utils.set_hotspot_mode(True)
-                        network_utils.set_wifi_mode(False)
-                        hotspot_active = True
-                        screens.draw_qr_screen(device)
-                        time.sleep(5)
+                    screens.draw_loading_screen(device, "Switching to Hotspot")
+
+                    network_utils.set_hotspot_mode(True)
+                    hotspot_active = True
+                    screens.draw_qr_screen(device)
+                    time.sleep(5)
+
                 elif selected == "Show IP Address":
-                    import network_utils
                     ip = network_utils.get_ip_address()
                     from PIL import Image, ImageDraw, ImageFont
                     img = Image.new("1", (device.width, device.height))
