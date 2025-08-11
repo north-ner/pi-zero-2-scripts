@@ -4,6 +4,8 @@ import config, buttons, screens
 from luma.core.interface.serial import i2c
 from luma.oled.device import ssd1306
 import network_utils
+
+
 serial = i2c(port=config.I2C_PORT, address=config.OLED_ADDRESS)
 device = ssd1306(serial)
 
@@ -62,8 +64,11 @@ try:
             if buttons.read_button(config.BUTTON_MIDDLE):
                 selected = config.MENU_ITEMS[menu_index]
                 if selected == "Shutdown":
-                    screens.draw_loading_screen(device, "Shutting down")
-                    time.sleep(1)
+                    from animation import animate_sleeping_cat_oled
+                    animate_sleeping_cat_oled(device, repeat=5, delay=0.6)
+                    device.clear() 
+                    device.hide() 
+                    time.sleep(0.5) 
                     import os
                     os.system("sudo shutdown now")
                 elif selected == "WiFi Mode":
@@ -78,7 +83,7 @@ try:
 
                 elif selected == "Hotspot Mode":
                     if hotspot_active:
-                        screens.draw_loading_screen(device, "Already in Hotspot mode")
+                        screens.draw_qr_screen(device)
                     else:
                         screens.draw_loading_screen(device, "Switching to Hotspot")
                         network_utils.set_hotspot_mode(True)
@@ -95,14 +100,9 @@ try:
                     draw.text((0, 20), f"IP: {ip}", font=font, fill=255)
                     device.display(img)
                     time.sleep(5)
-
         if buttons.read_button(config.BUTTON_SCREEN):
-            from luma.core.render import canvas
-            if oled_on:
-                device.hide()
-            else:
-                device.show()
-            oled_on = not oled_on
+            from animation import toggle_oled_screen
+            oled_on = toggle_oled_screen(device, oled_on)
             time.sleep(0.2)
 
         time.sleep(0.05)
