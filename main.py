@@ -67,19 +67,24 @@ try:
                     import os
                     os.system("sudo shutdown now")
                 elif selected == "WiFi Mode":
-                    screens.draw_loading_screen(device, "Switching to Wi-Fi")
+                    if not hotspot_active:
+                        screens.draw_loading_screen(device, "Device Already in WiFi Mode")
+                    else:
+                        screens.draw_loading_screen(device, "Switching to Wi-Fi")
 
-                    network_utils.set_wifi_mode(True)
-                    hotspot_active = False
-                    time.sleep(1)
+                        network_utils.set_wifi_mode(True)
+                        hotspot_active = False
+                        time.sleep(1)
 
                 elif selected == "Hotspot Mode":
-                    screens.draw_loading_screen(device, "Switching to Hotspot")
-
-                    network_utils.set_hotspot_mode(True)
-                    hotspot_active = True
-                    screens.draw_qr_screen(device)
-                    time.sleep(5)
+                    if hotspot_active:
+                        screens.draw_loading_screen(device, "Already in Hotspot mode")
+                    else:
+                        screens.draw_loading_screen(device, "Switching to Hotspot")
+                        network_utils.set_hotspot_mode(True)
+                        hotspot_active = True
+                        screens.draw_qr_screen(device)
+                        time.sleep(5)
 
                 elif selected == "Show IP Address":
                     ip = network_utils.get_ip_address()

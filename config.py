@@ -14,7 +14,7 @@ OLED_ADDRESS = 0x3C
 
 # Hotspot/WiFi credentials (for QR code)
 HOTSPOT_SSID = "MyPiHotspot"
-HOTSPOT_PASS = "mypassword123"
+HOTSPOT_PASS = "7249980833"
 
 # Menu items
 MENU_ITEMS = [

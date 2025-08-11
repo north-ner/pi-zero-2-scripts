@@ -2,6 +2,9 @@ import os
 import re
 import subprocess
 
+TO_WIFI_SCRIPT = "./to_wifi.sh"
+TO_HOTSPOT_SCRIPT = "./to_hotspot.sh"
+
 def get_wifi_signal():
     try:
         iwconfig_out = os.popen("iwconfig wlan0").read()
@@ -28,23 +31,21 @@ def is_hotspot_running():
     return status == "active"
 
 def set_wifi_mode(enable=True):
-    """Switch to Wi-Fi mode safely."""
+    """Switch to Wi-Fi mode using the to_wifi script."""
     if enable:
         if is_wifi_connected():
             print("Already in Wi-Fi mode")
             return
-        os.system("bash hotspot_off.sh")
-        os.system("bash wifi_on.sh")
+        os.system(f"bash {TO_WIFI_SCRIPT}")
     else:
         set_hotspot_mode(True)
 
 def set_hotspot_mode(enable=True):
-    """Switch to hotspot mode safely."""
+    """Switch to hotspot mode using the to_hotspot script."""
     if enable:
         if is_hotspot_running():
             print("Already in Hotspot mode")
             return
-        os.system("bash wifi_off.sh")
-        os.system("bash hotspot_on.sh")
+        os.system(f"bash {TO_HOTSPOT_SCRIPT}")
     else:
         set_wifi_mode(True)
