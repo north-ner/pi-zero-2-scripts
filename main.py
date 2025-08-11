@@ -36,11 +36,11 @@ try:
     while True:
         if oled_on:
             if current_screen == 0:
-                screens.draw_status_screen(device)
+                screens.draw_status_screen(device, hotspot_active)
             elif current_screen == 1:
                 screens.draw_menu_screen(device, menu_index, scroll_offset)
             elif current_screen == 2:
-                screens.draw_resource_screen(device)
+                screens.draw_resource_screen(device, hotspot_active)
 
         # Button handling for screen cycle
         if buttons.read_button(config.BUTTON_LEFT):
@@ -84,7 +84,7 @@ try:
                         network_utils.set_hotspot_mode(True)
                         hotspot_active = True
                         screens.draw_qr_screen(device)
-                        time.sleep(5)
+                        time.sleep(10)
 
                 elif selected == "Show IP Address":
                     ip = network_utils.get_ip_address()
@@ -94,7 +94,7 @@ try:
                     font = ImageFont.load_default()
                     draw.text((0, 20), f"IP: {ip}", font=font, fill=255)
                     device.display(img)
-                    time.sleep(3)
+                    time.sleep(5)
 
         if buttons.read_button(config.BUTTON_SCREEN):
             from luma.core.render import canvas

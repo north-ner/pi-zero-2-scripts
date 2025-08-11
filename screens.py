@@ -15,44 +15,60 @@ def draw_loading_screen(device, message="Loading..."):
         device.display(image)
         time.sleep(0.1)
 
-def draw_status_screen(device):
+def draw_status_screen(device, hotspot_active):
     # Draw main status screen with CPU temp, WiFi signal, battery (placeholder)
     image = Image.new("1", (device.width, device.height))
     draw = ImageDraw.Draw(image)
 
     draw.text((0, 0), "Status", font=font, fill=255)
 
+    # Mode & IP (hotspot_active passed in from main.py)
+    mode = "Hotspot" if hotspot_active else "Wi-Fi"
+    ip = network_utils.get_ip_address()
+    draw.text((0, 0), f"{mode} | {ip}", font=font, fill=255)
+
     cpu_temp = resource_utils.get_cpu_temp()
     cpu_temp_str = f"{cpu_temp:.1f} C" if cpu_temp is not None else "N/A"
-    draw.text((0, 12), f"CPU Temp: {cpu_temp_str}", font=font, fill=255)
+    draw.text((0, 20), f"CPU Temp: {cpu_temp_str}", font=font, fill=255)
 
     wifi_signal = network_utils.get_wifi_signal()
     wifi_str = f"{wifi_signal} dBm" if wifi_signal is not None else "N/A"
-    draw.text((0, 24), f"WiFi Signal: {wifi_str}", font=font, fill=255)
+    draw.text((0, 30), f"WiFi Signal: {wifi_str}", font=font, fill=255)
 
-    # Placeholder battery percentage
-    draw.text((0, 36), "Battery: 100%", font=font, fill=255)
+    draw.text((0, 40), "Battery: 100%", font=font, fill=255)
 
     device.display(image)
 
-def draw_resource_screen(device):
-    # Draw resource usage screen (CPU temp, RAM, Disk)
+def draw_resource_screen(device, hotspot_active):
+    """Draw resource usage screen with mode, IP, CPU load, RAM, Disk, and uptime."""
     image = Image.new("1", (device.width, device.height))
     draw = ImageDraw.Draw(image)
 
-    draw.text((0, 0), "Resources", font=font, fill=255)
+    # Mode & IP (hotspot_active passed in from main.py)
+    mode = "Hotspot" if hotspot_active else "Wi-Fi"
+    ip = network_utils.get_ip_address()
+    draw.text((0, 0), f"{mode} | {ip}", font=font, fill=255)
 
-    cpu_temp = resource_utils.get_cpu_temp()
-    cpu_temp_str = f"{cpu_temp:.1f} C" if cpu_temp is not None else "N/A"
-    draw.text((0, 12), f"CPU Temp: {cpu_temp_str}", font=font, fill=255)
+    # CPU Load
+    cpu_load = resource_utils.get_cpu_load()
+    load_str = f"{cpu_load:.0f}%" if cpu_load is not None else "N/A"
+    draw.text((0, 12), f"CPU Load: {load_str}", font=font, fill=255)
 
+    # RAM Usage
     ram_usage = resource_utils.get_ram_usage()
     draw.text((0, 24), f"RAM Usage: {ram_usage}%", font=font, fill=255)
 
+    # Drive Usage
     drive_usage = resource_utils.get_drive_usage()
     draw.text((0, 36), f"Disk Usage: {drive_usage}%", font=font, fill=255)
 
+    # Uptime
+    uptime = resource_utils.get_uptime()
+    draw.text((0, 48), f"{uptime}", font=font, fill=255)
+
     device.display(image)
+
+
 
 def draw_menu_screen(device, selected, scroll_offset=0):
     # Draw menu with selectable items and smooth scrolling highlight
